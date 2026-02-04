@@ -428,6 +428,45 @@
             display: inline-block;
         }
 
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .stat-icon {
+            background: var(--bg-app);
+            padding: 0.75rem;
+            border-radius: 0.75rem;
+            color: var(--primary);
+        }
+
+        .stat-info h4 {
+            font-size: 0.875rem;
+            color: var(--text-muted);
+            margin-bottom: 0.25rem;
+        }
+
+        .stat-info .value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-main);
+            font-family: monospace;
+        }
+
         /* Stats Print Hide */
         @media print {
             .stats-grid {
@@ -521,185 +560,262 @@
             .controls,
             .btn,
             .search-box,
-            .detail-header button {
+            .detail-header button,
+            .stats-grid,
+            #view-list .grid,
+            /* Hide the card grid */
+            #view-add,
+            #view-settings,
+            #emptyState {
                 display: none !important;
             }
 
-            /* Print List Mode */
-            #view-list.active .grid {
-                display: block;
-            }
-
-            #view-list.active .card {
-                border: 1px solid #ccc;
-                box-shadow: none;
-                margin-bottom: 0.5rem;
-                page-break-inside: avoid;
-                transform: none !important;
+            /* Print List Mode - Show Table */
+            #print-table-container {
+                display: block !important;
+                visibility: visible !important;
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
             }
 
             /* Print Detail Mode */
             .detail-card {
-                box-shadow: none;
-                border: none;
-                max-width: 100%;
+                /* If printing detail view, we might want to keep it, but user asked for "Print Page" changes which usually implies the list. 
+                    We'll let the specific print functions control visibility if needed, or just rely on this table for the 'Print All' feature. */
+                display: none !important;
             }
+
+            /* Exception: If we are specifically printing a detail card (Print By Reg), we might handle that differently, 
+                but for now the user request is about "Print Page" having list characteristics. 
+                Let's assume this applies to 'Print All'. 'Print Single' is likely fine as is or can be adapted. */
         }
 
-        /* Stats Dashboard */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1.5rem;
-            margin-bottom: 2rem;
-        }
-
-        .stat-card {
-            background: white;
-            padding: 1.25rem;
-            border-radius: var(--radius-lg);
-            border: 1px solid var(--border);
-            box-shadow: var(--shadow-sm);
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            transition: transform 0.2s;
-        }
-
-        .stat-card:hover {
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-md);
-        }
-
-        .stat-icon {
-            width: 48px;
-            height: 48px;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.5rem;
-        }
-
-        .stat-info .value {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: var(--primary);
-            line-height: 1;
-        }
-
-        .stat-info .label {
-            font-size: 0.85rem;
-            color: var(--text-muted);
-            margin-top: 0.25rem;
-        }
-
-        <style>
-        /* ... existing vars ... */
-
-        /* Responsive Improvements */
-        @media (max-width: 768px) {
-            :root {
-                --radius-lg: 0.75rem;
-                /* Smaller radius on mobile */
-            }
-
-            .container {
-                padding: 0 1rem;
-            }
-
-            header {
-                padding: 0.5rem 0;
-            }
-
-            .header-content {
-                flex-direction: row;
-                /* Keep row but ensure alignment */
-            }
-
-            .logo span {
-                display: none;
-                /* Hide text logo on very small screens if needed, or keep it */
-            }
-
-            /* Stack Controls */
-            .controls {
-                flex-direction: column;
-                align-items: stretch;
-                gap: 1rem;
-            }
-
-            .search-integrated {
-                width: 100%;
-                flex-wrap: wrap;
-                padding: 0.75rem;
-            }
-
-            .search-integrated input {
-                width: 100%;
-                margin-bottom: 0.75rem;
-                padding-bottom: 0.5rem;
-                border-bottom: 1px solid var(--border);
-            }
-
-            .search-integrated .divider {
-                display: none;
-            }
-
-            .search-integrated label,
-            .search-integrated select {
-                font-size: 0.9rem;
-                padding: 0.5rem 0;
-            }
-
-            /* Action Buttons full width */
-            .controls>div:last-child {
-                display: grid;
-                grid-template-columns: 1fr 1fr;
-                width: 100%;
-            }
-
-            .grid {
-                grid-template-columns: 1fr;
-                /* Full width cards */
-                gap: 1rem;
-            }
-
-            /* Modals Full Screen on Mobile */
-            .view:not(#view-list) {
+        /* Updated Print Styles */
+        @media print {
+            body {
+                background: white;
+                color: black;
+                margin: 0;
                 padding: 0;
-                align-items: flex-end;
-                /* Sheet-like or full screen */
             }
 
-            .view:not(#view-list)>.detail-card,
-            .view:not(#view-list)>.settings-card {
-                max-width: 100%;
-                height: 100%;
-                border-radius: 0;
-                display: flex;
-                flex-direction: column;
+            header,
+            .controls,
+            .btn,
+            .search-box,
+            .detail-header button,
+            .stats-grid,
+            #view-list .grid,
+            #view-add,
+            #view-settings,
+            #emptyState {
+                display: none !important;
             }
 
-            .detail-body {
-                flex: 1;
-                overflow-y: auto;
+            #print-table-container {
+                display: block !important;
+                visibility: visible !important;
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                background: white;
             }
 
-            /* Stats Stack */
-            .stats-grid {
-                grid-template-columns: 1fr;
-                gap: 1rem;
+            .detail-card {
+                display: none !important;
             }
         }
 
-        /* Tablet Adjustments */
-        @media (min-width: 769px) and (max-width: 1024px) {
-            .grid {
-                grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            }
+        /* Print Layout Classes */
+        #print-table-container {
+            display: none;
+            /* Hidden on screen */
+            direction: rtl;
+        }
+
+        .print-page {
+            display: flex;
+            flex-direction: row;
+            width: 100%;
+            height: 100vh;
+            /* Approximate A4 height context */
+            box-sizing: border-box;
+            page-break-after: always;
+            break-after: page;
+            padding: 1cm;
+            gap: 1cm;
+        }
+
+        .print-page:last-child {
+            page-break-after: auto;
+            break-after: auto;
+        }
+
+        .print-column {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .print-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-family: 'Cairo', sans-serif;
+            font-size: 10pt;
+            /* Slightly smaller to fit */
+        }
+
+        .print-table th,
+        .print-table td {
+            border: 1px solid #000;
+            padding: 0.25rem 0.5rem;
+            text-align: right;
+            line-height: 1.3;
+        }
+
+        .print-table th {
+            background-color: #f0f0f0 !important;
+            font-weight: bold;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+            text-align: center;
+            font-size: 9pt;
+        }
+
+        .col-seq {
+            width: 40px;
+            text-align: center !important;
+        }
+
+        .col-name {
+            width: auto;
+        }
+
+        .col-reg {
+            width: 60px;
+            text-align: center !important;
+            direction: ltr;
+        }
+
+        .col-page {
+            width: 40px;
+            text-align: center !important;
         }
     </style>
+</head>
+
+
+
+
+<style>
+    /* ... existing vars ... */
+
+    /* Responsive Improvements */
+    @media (max-width: 768px) {
+        :root {
+            --radius-lg: 0.75rem;
+            /* Smaller radius on mobile */
+        }
+
+        .container {
+            padding: 0 1rem;
+        }
+
+        header {
+            padding: 0.5rem 0;
+        }
+
+        .header-content {
+            flex-direction: row;
+            /* Keep row but ensure alignment */
+        }
+
+        .logo span {
+            display: none;
+            /* Hide text logo on very small screens if needed, or keep it */
+        }
+
+        /* Stack Controls */
+        .controls {
+            flex-direction: column;
+            align-items: stretch;
+            gap: 1rem;
+        }
+
+        .search-integrated {
+            width: 100%;
+            flex-wrap: wrap;
+            padding: 0.75rem;
+        }
+
+        .search-integrated input {
+            width: 100%;
+            margin-bottom: 0.75rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .search-integrated .divider {
+            display: none;
+        }
+
+        .search-integrated label,
+        .search-integrated select {
+            font-size: 0.9rem;
+            padding: 0.5rem 0;
+        }
+
+        /* Action Buttons full width */
+        .controls>div:last-child {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            width: 100%;
+        }
+
+        .grid {
+            grid-template-columns: 1fr;
+            /* Full width cards */
+            gap: 1rem;
+        }
+
+        /* Modals Full Screen on Mobile */
+        .view:not(#view-list) {
+            padding: 0;
+            align-items: flex-end;
+            /* Sheet-like or full screen */
+        }
+
+        .view:not(#view-list)>.detail-card,
+        .view:not(#view-list)>.settings-card {
+            max-width: 100%;
+            height: 100%;
+            border-radius: 0;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .detail-body {
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        /* Stats Stack */
+        .stats-grid {
+            grid-template-columns: 1fr;
+            gap: 1rem;
+        }
+    }
+
+    /* Tablet Adjustments */
+    @media (min-width: 769px) and (max-width: 1024px) {
+        .grid {
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        }
+    }
+</style>
 </head>
 
 <body>
@@ -733,56 +849,12 @@
         <!-- List View -->
         <section id="view-list" class="view active">
 
-            <!-- Dashboard Stats -->
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <div class="stat-icon" style="background: var(--accent-soft); color: var(--accent);">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                            stroke-width="2">
-                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
-                            <circle cx="9" cy="7" r="4" />
-                            <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
-                            <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-                        </svg>
-                    </div>
-                    <div class="stat-info">
-                        <div class="value" id="totalStudents">0</div>
-                        <div class="label">إجمالي الطلاب</div>
-                    </div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-icon" style="background: #f0fdf4; color: #16a34a;">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                            stroke-width="2">
-                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-                            <polyline points="14 2 14 8 20 8" />
-                            <line x1="16" y1="13" x2="8" y2="13" />
-                            <line x1="16" y1="17" x2="8" y2="17" />
-                            <polyline points="10 9 9 9 8 9" />
-                        </svg>
-                    </div>
-                    <div class="stat-info">
-                        <div class="value" id="totalPages">0</div>
-                        <div class="label">عدد الصفحات</div>
-                    </div>
-                </div>
-                <!-- Optional: Recent or Date -->
-                <div class="stat-card">
-                    <div class="stat-icon" style="background: #fff7ed; color: #ea580c;">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                            stroke-width="2">
-                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
-                            <line x1="16" y1="2" x2="16" y2="6" />
-                            <line x1="8" y1="2" x2="8" y2="6" />
-                            <line x1="3" y1="10" x2="21" y2="10" />
-                        </svg>
-                    </div>
-                    <div class="stat-info">
-                        <div class="value" style="font-size:1.1rem; font-weight:600;" id="currentDate">-</div>
-                        <div class="label">التاريخ اليوم</div>
-                    </div>
-                </div>
+
+            <!-- Stats Dashboard -->
+            <div id="statsDashboard" class="stats-grid">
+                <!-- Injected via JS -->
             </div>
+
             <!-- New Toolbar -->
             <div class="controls"
                 style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; margin-bottom:2rem;">
@@ -1019,6 +1091,17 @@
                             </div>
                         </div>
 
+                        <div
+                            style="background: #f8fafc; padding: 1.25rem; border-radius: var(--radius-md); border: 1px solid var(--border); margin-bottom: 2rem;">
+                            <h3 style="font-size: 1rem; color: var(--text-muted); margin-bottom: 1rem;">ملاحظات
+                            </h3>
+                            <div class="input-group" style="margin-bottom:0;">
+                                <label>الملاحظات (اختياري)</label>
+                                <textarea name="notes" class="input-field"
+                                    style="min-height: 80px; resize: vertical;"></textarea>
+                            </div>
+                        </div>
+
                         <div style="display: flex; gap: 1rem;">
                             <button type="submit" class="btn btn-primary" style="flex: 2;">حفظ التغييرات</button>
                             <button type="button" onclick="router.navigate('list')" class="btn btn-secondary"
@@ -1111,6 +1194,24 @@
                             </div>
                         </div>
 
+                        <div
+                            style="background: #f8fafc; padding: 1.25rem; border-radius: var(--radius-md); border: 1px solid var(--border); margin-bottom: 2rem;">
+                            <h3
+                                style="font-size: 1rem; color: var(--text-muted); margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <path d="M11 4H4a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                                </svg>
+                                ملاحظات
+                            </h3>
+                            <div class="input-group" style="margin-bottom: 0;">
+                                <label>الملاحظات (اختياري)</label>
+                                <textarea name="notes" class="input-field" style="min-height: 80px; resize: vertical;"
+                                    placeholder="أية ملاحظات إضافية..."></textarea>
+                            </div>
+                        </div>
+
                         <div style="display: flex; gap: 1rem; padding-top: 1rem; border-top: 1px solid var(--border);">
                             <button type="button" onclick="router.navigate('list')" class="btn btn-secondary"
                                 style="flex: 1;">إلغاء</button>
@@ -1148,7 +1249,11 @@
         </section>
     </main>
 
-    <script src="app.js"></script>
+    <div id="print-table-container">
+        <!-- Table injected by JS -->
+    </div>
+
+    <script type="module" src="app.js"></script>
 </body>
 
 </html>
